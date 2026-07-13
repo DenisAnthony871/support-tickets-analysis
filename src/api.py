@@ -95,4 +95,7 @@ async def triage_endpoint(ticket: TicketInput) -> TriageOutput:
         logger.error("Error during triage_ticket execution", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error") from exc
 
+    if not isinstance(result, dict):
+        raise HTTPException(status_code=500, detail="Unexpected stream returned")
+
     return TriageOutput(**result)
