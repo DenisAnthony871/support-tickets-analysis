@@ -3,12 +3,12 @@ import streamlit as st
 from src.triage import triage_ticket
 from src.account_summary import summarize_account
 
-st.set_page_config(page_title="TAM AI Assistant", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="TAM AI Assistant", page_icon="⚙️", layout="wide")
 
-st.title("TAM AI Assistant 🤖")
+st.title("TAM AI Assistant")
 st.markdown("A thin UI demo for Technical Account Managers to interact with AI models.")
 
-tab1, tab2 = st.tabs(["🎫 Ticket Triage", "📊 Account Summary"])
+tab1, tab2 = st.tabs(["Ticket Triage", "Account Summary"])
 
 with tab1:
     st.header("Intelligent Ticket Triage")
@@ -40,8 +40,7 @@ with tab1:
                     col2.metric("Issue Category", result.get("issue_category"))
                     
                     urgency = result.get("urgency_tier")
-                    urgency_color = "🔴" if urgency == "P1" else "🟠" if urgency == "P2" else "🟡"
-                    col3.metric("Urgency", f"{urgency_color} {urgency}")
+                    col3.metric("Urgency", urgency)
                     
                     st.markdown(f"**Recommended Team:** {result.get('recommended_team')}")
                     st.markdown(f"**Reasoning:** {result.get('reasoning')}")
@@ -59,7 +58,15 @@ with tab2:
     st.header("Account Health Summary")
     st.markdown("Select an account to generate a health briefing based on the last 90 days of tickets.")
     
-    accounts = ["ACC-1234", "ACC-3033", "ACC-3336", "ACC-8113", "ACC-9090"]
+    # Dynamically load valid accounts
+    try:
+        with open("starter-repo/data/accounts.json", encoding="utf-8") as f:
+            account_data = json.load(f)
+            accounts = [a["account_id"] for a in account_data]
+    except Exception:
+        # Fallback to known valid accounts if file load fails
+        accounts = ["ACC-3336", "ACC-3033", "ACC-8113", "ACC-7893", "ACC-4654"]
+        
     selected_account = st.selectbox("Select Account", accounts)
     
     if st.button("Generate Summary", type="primary"):
@@ -88,10 +95,10 @@ with tab2:
                 flags = result.get("risks_and_flags", [])
                 if flags:
                     for flag in flags:
-                        with st.expander(f"🚩 {flag.get('ticket_id')} - {flag.get('reason')}"):
+                        with st.expander(f"Flagged Ticket: {flag.get('ticket_id')} - {flag.get('reason')}"):
                             st.markdown(f"**Quote:**\n> {flag.get('verbatim_quote')}")
                 else:
-                    st.success("No critical risks flagged!")
+                    st.success("No critical risks flagged.")
                     
             except Exception as e:
                 st.error(f"Failed to parse structured output: {e}")
