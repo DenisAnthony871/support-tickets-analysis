@@ -1,0 +1,65 @@
+[
+  {
+    "ticket_id": "TKT-10088",
+    "selection_reason": "P1-looking (critical data loss, business continuity at risk)",
+    "original_ticket": {
+      "subject": "URGENT: Missing data in WorkflowEngine Error Handling",
+      "body": "URGENT — We are missing critical data in WorkflowEngine's Error Handling module.\n\nLast known good state: earlier today\nMissing records: approximately 2880\nAffected workflows: Finance team operations\n\nThis is a P1 for us. Please escalate immediately. We have business continuity at risk.",
+      "product": "WorkflowEngine",
+      "product_area": "Error Handling",
+      "category": "Performance",
+      "urgency": "P1"
+    },
+    "triage_output": {
+      "product_area": "Error Handling",
+      "issue_category": "Bug",
+      "urgency_tier": "P1",
+      "reasoning": "The customer has explicitly stated that they have business continuity at risk and are missing critical data in WorkflowEngine's Error Handling module.",
+      "matched_kb_doc": "starter-repo/knowledge-base/products/workflowengine.md",
+      "recommended_team": "platform-engineering",
+      "draft_response": "Dear [Customer],\n\nThank you for reaching out about the missing data in WorkflowEngine's Error Handling module. We understand the urgency of this issue and are escalating it immediately. Our team will investigate and work on a resolution as soon as possible. In the meantime, please provide us with any additional diagnostic information that may help us troubleshoot the issue. We will keep you updated on our progress. If you have any questions or concerns, please don't hesitate to reach out.\n\nBest regards, [Support Agent]"
+    }
+  },
+  {
+    "ticket_id": "TKT-10018",
+    "selection_reason": "P4-looking (new customer how-to question)",
+    "original_ticket": {
+      "subject": "Best practice for Key Management setup — SecureVault",
+      "body": "Hello,\n\nWe're a new customer and just starting our SecureVault rollout. Could you point us to best practices for Key Management configuration?\n\nOur setup: 305 users, EU-Production environment, integrated with AWS S3.\n\nThanks",
+      "product": "SecureVault",
+      "product_area": "Key Management",
+      "category": "How-To",
+      "urgency": "P4"
+    },
+    "triage_output": {
+      "product_area": "Key Management",
+      "issue_category": "How-To",
+      "urgency_tier": "P4",
+      "reasoning": "The customer is requesting guidance on Key Management setup, which is a non-critical, how-to type of issue.",
+      "matched_kb_doc": "starter-repo/knowledge-base/onboarding/onboarding-guide.md",
+      "recommended_team": "customer-success",
+      "draft_response": "Hello, thank you for reaching out about SecureVault Key Management setup. I'd be happy to help. Based on your description, it seems like you're looking for best practices for configuring Key Management. I've included a link to our general onboarding guide, which covers the initial setup process. If you have any specific questions or need further assistance, please let me know. https://docs.omni.com/onboarding-guide"
+    }
+  },
+  {
+    "ticket_id": "TKT-10035",
+    "selection_reason": "Ambiguous (performance issue labelled as Integration, could be P1-P3)",
+    "original_ticket": {
+      "subject": "SecureVault running extremely slowly for our team",
+      "body": "Hi Support,\n\nWe've noticed significant performance degradation in SecureVault over the past 2 days. Page loads are taking 116+ seconds and Key Management operations are timing out.\n\nAffected users: 366\nRegion: US-East\n\nIs there a known issue or maintenance window we should be aware of?",
+      "product": "SecureVault",
+      "product_area": "Key Management",
+      "category": "Integration",
+      "urgency": "P2"
+    },
+    "triage_output": {
+      "product_area": "Key Management",
+      "issue_category": "Performance",
+      "urgency_tier": "P2",
+      "reasoning": "The customer reports significant performance degradation in SecureVault's Key Management module, affecting 366 users, which indicates a major impact on the business.",
+      "matched_kb_doc": "starter-repo/knowledge-base/products/securevault.md",
+      "recommended_team": "security-team",
+      "draft_response": "Dear [Customer],\n\nThank you for reaching out about the performance issues you're experiencing with SecureVault's Key Management module. I understand how frustrating this must be, especially with 366 users affected.\n\nTo better assist you, could you please provide more details about your environment, such as the SecureVault version, plan tier, and any recent changes made to the setup? This will help us identify the root cause of the issue.\n\nIn the meantime, I recommend checking the SecureVault documentation for any known issues or maintenance windows that might be causing the performance degradation.\n\nPlease let me know if there's any additional information you can provide. I'll do my best to get this resolved for you as soon as possible.\n\nBest regards,\n[Support Agent]"
+    }
+  }
+]

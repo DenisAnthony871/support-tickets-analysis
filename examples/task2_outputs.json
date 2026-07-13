@@ -1,0 +1,35 @@
+[
+  {
+    "account_id": "ACC-3033",
+    "selection_reason": "Healthy (Low Risk)",
+    "summary_output": {
+      "executive_summary": "Account ACC-3033, Polaris Group, is a healthy account with an increasing usage trend. Despite having 11 open tickets, none are critical (P1) and the account is approaching its renewal date. The TAM should focus on proactive engagement to ensure a smooth renewal process and address any emerging technical issues.",
+      "risks_and_flags": [],
+      "talking_points": [
+        "Review the account's usage trend and discuss potential opportunities for growth.",
+        "Schedule a renewal meeting with Taylor Smith to ensure a smooth renewal process.",
+        "Proactively engage with the customer to address any emerging technical issues."
+      ]
+    }
+  },
+  {
+    "account_id": "ACC-3336",
+    "selection_reason": "Churning / At Risk (Escalation Signals)",
+    "summary_output": {
+      "executive_summary": "Account ACC-3336, Omni Consumer Products, is at risk due to inactivity and a recent surge in tickets. The customer has 7 open tickets, with 0 P1 tickets in the last 30 days. The primary contact, Quinn Wilson, is considering competing vendor evaluation. Immediate retention risks include addressing the customer's frustration with DataBridge Pro's performance degradation.",
+      "risks_and_flags": [
+        {
+          "ticket_id": "TKT-10293",
+          "reason": "Severe product defect causing significant performance degradation",
+          "verbatim_quote": "We've noticed significant performance degradation in DataBridge Pro over the past 12 days. Page loads are taking 119+ seconds and API operations are timing out."
+        }
+      ],
+      "talking_points": [
+        "Schedule a call with Quinn Wilson to discuss the recent performance issues with DataBridge Pro and understand the root cause.",
+        "Provide a detailed plan to address the performance degradation and ensure timely resolution.",
+        "Discuss the possibility of a competing vendor evaluation and understand the customer's pain points.",
+        "Review the account's usage trend and discuss strategies to increase engagement and adoption."
+      ]
+    }
+  }
+]
