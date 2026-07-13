@@ -106,11 +106,14 @@ _TRIAGE_SCHEMA = {
 # Core triage function
 # ---------------------------------------------------------------------------
 
+from typing import Any, Union, Generator
+
 def triage_ticket(
     ticket_input: Union[str, dict[str, Any]],
     *,
     model: str = "llama-3.1-8b-instant",
-) -> dict[str, Any]:
+    stream: bool = False,
+) -> Union[dict[str, Any], Generator[str, None, None]]:
     """
     Triage a support ticket.
 
@@ -192,8 +195,18 @@ def triage_ticket(
             ],
             temperature=0.2,
             response_format={"type": "json_object"},
+            stream=stream,
             timeout=30.0
         )
+        
+        if stream:
+            def json_stream():
+                for chunk in response:
+                    text = chunk.choices[0].delta.content
+                    if text:
+                        yield text
+            return json_stream()
+
         content = response.choices[0].message.content
         if not content:
             raise ValueError("Empty response from API")

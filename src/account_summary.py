@@ -9,7 +9,7 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Generator, Union
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -69,22 +69,29 @@ _ACCOUNT_SUMMARY_SCHEMA = {
 # Logic
 # ---------------------------------------------------------------------------
 
-def summarize_account(account_id: str, model: str = "llama-3.1-8b-instant") -> dict[str, Any]:
+def summarize_account(
+    account_id: str,
+    *,
+    model: str = "llama-3.1-8b-instant",
+    stream: bool = False,
+) -> Union[dict[str, Any], Generator[str, None, None]]:
     """
-    Summarise an account's health based on its metadata and last 90 days of tickets.
-
+    Generate an account health summary for the given account ID.
+    
     Parameters
     ----------
     account_id : str
-        The account ID to summarize (e.g. 'ACC-3847')
+        The account ID to summarize (e.g., "ACC-1234").
     model : str
         The Groq model to use.
+    stream : bool
+        If True, yields chunks of the generated JSON string.
 
     Returns
     -------
-    dict
+    dict or Generator
         Structured account summary containing executive_summary, risks_and_flags,
-        and talking_points.
+        and talking_points, or a text generator if stream=True.
     """
     accounts = json.loads((_DATA_ROOT / "accounts.json").read_text(encoding="utf-8"))
     tickets = json.loads((_DATA_ROOT / "tickets.json").read_text(encoding="utf-8"))
@@ -135,8 +142,18 @@ def summarize_account(account_id: str, model: str = "llama-3.1-8b-instant") -> d
             ],
             temperature=0.0,
             response_format={"type": "json_object"},
+            stream=stream,
             timeout=45.0
         )
+        
+        if stream:
+            def json_stream():
+                for chunk in response:
+                    text = chunk.choices[0].delta.content
+                    if text:
+                        yield text
+            return json_stream()
+
         content = response.choices[0].message.content
         if not content:
             raise ValueError("Empty response from API")
