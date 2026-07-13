@@ -1,5 +1,7 @@
 # Support Tickets Analysis
 
+**[Watch the Video Walkthrough on Loom](https://www.loom.com/share/307402f922a142af8f3e6871648921c2)**
+
 A structured Python project for AI-driven support ticket triage and account summarization.
 
 ## Setup Instructions
