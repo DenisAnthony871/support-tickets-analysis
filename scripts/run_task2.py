@@ -20,7 +20,7 @@ MAX_RETRIES = 4
 RETRY_DELAYS = [5, 15, 30, 60]
 
 def summarize_with_retry(account_id: str) -> dict:
-    """Call summarize_account with retries on transient 503 errors."""
+    """Call summarize_account with retries on transient errors."""
     for attempt in range(MAX_RETRIES + 1):
         try:
             return summarize_account(account_id)
@@ -37,9 +37,8 @@ def summarize_with_retry(account_id: str) -> dict:
                 raise
 
 def main() -> None:
-    # Load accounts to find one healthy and one churning
     accounts = json.loads((DATA_ROOT / "accounts.json").read_text(encoding="utf-8"))
-    
+
     healthy_account = next(a for a in accounts if a["health_status"] == "Healthy")
     churning_account = next(a for a in accounts if a["health_status"] in ("At Risk", "Churning") and len(a["escalation_notes"]) > 0)
 
@@ -71,7 +70,6 @@ def main() -> None:
 
         print(json.dumps(summary_result, indent=2))
 
-    # Save
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(
         json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8"

@@ -12,7 +12,6 @@ import sys
 import time
 from pathlib import Path
 
-# Ensure project root is on sys.path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -21,7 +20,6 @@ from src.triage import triage_ticket
 TICKETS_PATH = project_root / "starter-repo" / "data" / "tickets.json"
 OUTPUT_PATH = project_root / "examples" / "task1_outputs.json"
 
-# The three ticket IDs we selected
 SELECTED_IDS = ["TKT-10088", "TKT-10018", "TKT-10035"]
 LABELS = {
     "TKT-10088": "P1-looking (critical data loss, business continuity at risk)",
@@ -30,11 +28,11 @@ LABELS = {
 }
 
 MAX_RETRIES = 4
-RETRY_DELAYS = [5, 15, 30, 60]  # exponential-ish backoff
+RETRY_DELAYS = [5, 15, 30, 60]
 
 
 def triage_with_retry(ticket: dict) -> dict:
-    """Call triage_ticket with retries on transient 503 errors."""
+    """Call triage_ticket with retries on transient errors."""
     for attempt in range(MAX_RETRIES + 1):
         try:
             return triage_ticket(ticket)
@@ -52,7 +50,6 @@ def triage_with_retry(ticket: dict) -> dict:
 
 
 def main() -> None:
-    # Load tickets
     tickets = json.loads(TICKETS_PATH.read_text(encoding="utf-8"))
     ticket_map = {t["ticket_id"]: t for t in tickets}
 
@@ -66,7 +63,6 @@ def main() -> None:
         print(f"Selection reason: {label}")
         print(f"{'='*60}")
 
-        # Stagger requests to avoid rate limits
         if i > 0:
             print("  ⏳ Waiting 5s between requests...")
             time.sleep(5)
@@ -90,7 +86,6 @@ def main() -> None:
 
         print(json.dumps(triage_result, indent=2))
 
-    # Save
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(
         json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8"

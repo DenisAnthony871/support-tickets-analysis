@@ -12,10 +12,6 @@ from pathlib import Path
 from typing import Optional
 
 
-# ---------------------------------------------------------------------------
-# Tokeniser
-# ---------------------------------------------------------------------------
-
 _STOP_WORDS = frozenset(
     "a an the is are was were be been being have has had do does did will "
     "would shall should may might must can could need dare to of in for on "
@@ -34,20 +30,14 @@ def _tokenise(text: str) -> list[str]:
     return [t for t in tokens if t not in _STOP_WORDS and len(t) > 1]
 
 
-# ---------------------------------------------------------------------------
-# TF-IDF index
-# ---------------------------------------------------------------------------
-
 class KBIndex:
     """Simple in-memory TF-IDF index over knowledge-base Markdown files."""
 
     def __init__(self, kb_root: str | Path):
         self.kb_root = Path(kb_root)
-        self.docs: dict[str, list[str]] = {}   # rel_path -> tokens
+        self.docs: dict[str, list[str]] = {}
         self.idf: dict[str, float] = {}
         self._build()
-
-    # -- construction -------------------------------------------------------
 
     def _build(self) -> None:
         """Walk KB directory, read Markdown files, compute IDF."""
@@ -60,19 +50,15 @@ class KBIndex:
         if n_docs == 0:
             return
 
-        # Document frequency
         df: dict[str, int] = {}
         for tokens in self.docs.values():
             for tok in set(tokens):
                 df[tok] = df.get(tok, 0) + 1
 
-        # IDF with +1 smoothing
         self.idf = {
             tok: math.log((n_docs + 1) / (freq + 1)) + 1
             for tok, freq in df.items()
         }
-
-    # -- query --------------------------------------------------------------
 
     def _tfidf_vector(self, tokens: list[str]) -> dict[str, float]:
         """Compute TF-IDF vector for a list of tokens."""

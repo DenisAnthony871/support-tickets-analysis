@@ -15,31 +15,15 @@ from groq import Groq
 
 from src.kb_retrieval import KBIndex
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
-
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _PROMPT_PATH = _PROJECT_ROOT / "prompts" / "triage_system.md"
 _KB_ROOT = _PROJECT_ROOT / "starter-repo" / "knowledge-base"
-
-# ---------------------------------------------------------------------------
-# Load env & system prompt
-# ---------------------------------------------------------------------------
 
 load_dotenv(_PROJECT_ROOT / ".env")
 
 _SYSTEM_PROMPT: str = _PROMPT_PATH.read_text(encoding="utf-8")
 
-# ---------------------------------------------------------------------------
-# KB index (module-level singleton — built once)
-# ---------------------------------------------------------------------------
-
 _kb_index = KBIndex(_KB_ROOT)
-
-# ---------------------------------------------------------------------------
-# JSON Schema for structured output
-# ---------------------------------------------------------------------------
 
 _TRIAGE_SCHEMA = {
     "type": "object",
@@ -102,10 +86,6 @@ _TRIAGE_SCHEMA = {
     ]
 }
 
-# ---------------------------------------------------------------------------
-# Core triage function
-# ---------------------------------------------------------------------------
-
 
 def triage_ticket(
     ticket_input: Union[str, dict[str, Any]],
@@ -131,7 +111,6 @@ def triage_ticket(
         urgency_tier, reasoning, matched_kb_doc, recommended_team,
         draft_response.
     """
-    # -- normalise input ----------------------------------------------------
     if isinstance(ticket_input, str):
         ticket_text = ticket_input
         extra_fields = ""
@@ -139,7 +118,6 @@ def triage_ticket(
         subject = ticket_input.get("subject", "")
         body = ticket_input.get("body", "")
         ticket_text = f"Subject: {subject}\n\nBody:\n{body}"
-        # Include optional metadata the LLM can factor in
         extra_parts = []
         for key in ("product", "product_area", "plan_tier", "channel", "tags"):
             if key in ticket_input and ticket_input[key]:
@@ -150,7 +128,6 @@ def triage_ticket(
             f"ticket_input must be str or dict, got {type(ticket_input).__name__}"
         )
 
-    # -- KB retrieval -------------------------------------------------------
     kb_matches = _kb_index.search(ticket_text, top_k=2)
     kb_context = ""
     for kb_match_path, _score in kb_matches:
@@ -162,26 +139,22 @@ def triage_ticket(
                 f"{kb_content[:2000]}"
             )
     kb_best = kb_matches[0][0] if kb_matches else None
-    
-    # Ensure kb_best has 'starter-repo/' prefix if it matched
+
     if kb_best and not kb_best.startswith("starter-repo/"):
         kb_best = f"starter-repo/{kb_best}"
 
-    # -- build user message -------------------------------------------------
     user_message = f"Triage the following support ticket:\n\n{ticket_text}"
     if extra_fields:
         user_message += f"\n\nAdditional ticket metadata:\n{extra_fields}"
     if kb_context:
         user_message += kb_context
 
-    # -- build system message with schema -----------------------------------
     system_prompt = (
         _SYSTEM_PROMPT + 
         "\n\nYou must respond ONLY with a valid JSON object that strictly adheres to the following JSON schema:\n" + 
         json.dumps(_TRIAGE_SCHEMA, indent=2)
     )
 
-    # -- call Groq with JSON mode -------------------------------------------
     api_key = os.getenv("GROQ_API_KEY")
     client = Groq(api_key=api_key)
 
@@ -213,7 +186,6 @@ def triage_ticket(
     except Exception as e:
         raise RuntimeError(f"Triage API failure: {e}") from e
 
-    # Ensure matched_kb_doc uses our retrieval result when relevant
     if not result.get("matched_kb_doc") and kb_best:
         result["matched_kb_doc"] = kb_best
 

@@ -1,6 +1,6 @@
 """
 TAM Account Health Summarizer (Task 2)
-Pulls account metadata and the last 90 days of tickets to generate a structured 
+Pulls account metadata and the last 90 days of tickets to generate a structured
 account health summary with talking points and flagged risks.
 """
 
@@ -14,10 +14,6 @@ from typing import Any, Generator, Union
 from dotenv import load_dotenv
 from groq import Groq
 
-# ---------------------------------------------------------------------------
-# Setup and Globals
-# ---------------------------------------------------------------------------
-
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _DATA_ROOT = _PROJECT_ROOT / "starter-repo" / "data"
 _PROMPT_PATH = _PROJECT_ROOT / "prompts" / "account_summary_system.md"
@@ -25,10 +21,6 @@ _PROMPT_PATH = _PROJECT_ROOT / "prompts" / "account_summary_system.md"
 load_dotenv(_PROJECT_ROOT / ".env")
 
 _SYSTEM_PROMPT: str = _PROMPT_PATH.read_text(encoding="utf-8")
-
-# ---------------------------------------------------------------------------
-# Schema Definition
-# ---------------------------------------------------------------------------
 
 _ACCOUNT_SUMMARY_SCHEMA = {
     "type": "object",
@@ -65,9 +57,6 @@ _ACCOUNT_SUMMARY_SCHEMA = {
     "required": ["executive_summary", "risks_and_flags", "talking_points"]
 }
 
-# ---------------------------------------------------------------------------
-# Logic
-# ---------------------------------------------------------------------------
 
 def summarize_account(
     account_id: str,
@@ -77,7 +66,7 @@ def summarize_account(
 ) -> Union[dict[str, Any], Generator[str, None, None]]:
     """
     Generate an account health summary for the given account ID.
-    
+
     Parameters
     ----------
     account_id : str
@@ -96,12 +85,10 @@ def summarize_account(
     accounts = json.loads((_DATA_ROOT / "accounts.json").read_text(encoding="utf-8"))
     tickets = json.loads((_DATA_ROOT / "tickets.json").read_text(encoding="utf-8"))
 
-    # 1. Pull the account summary
     account_data = next((a for a in accounts if a["account_id"] == account_id), None)
     if not account_data:
         raise ValueError(f"Account {account_id} not found in accounts.json")
 
-    # 2. Pull tickets from the last 90 days
     latest_ticket_date_str = max(t["created_at"] for t in tickets)
     latest_ticket_date = datetime.fromisoformat(latest_ticket_date_str.replace("Z", "+00:00"))
     cutoff_date = latest_ticket_date - timedelta(days=90)
@@ -113,23 +100,21 @@ def summarize_account(
             if ticket_date >= cutoff_date:
                 recent_tickets.append(t)
 
-    # Build prompt context
     account_json = json.dumps(account_data, indent=2)
     tickets_json = json.dumps(recent_tickets, indent=2)
-    
+
     user_message = (
         f"Please provide an account health summary for Account ID: {account_id}\n\n"
         f"--- ACCOUNT METADATA ---\n{account_json}\n\n"
         f"--- RECENT TICKETS (Last 90 Days) ---\n{tickets_json}"
     )
-    
+
     system_prompt = (
         _SYSTEM_PROMPT + 
         "\n\nYou must respond ONLY with a valid JSON object that strictly adheres to the following JSON schema:\n" + 
         json.dumps(_ACCOUNT_SUMMARY_SCHEMA, indent=2)
     )
 
-    # 3. Call Groq
     api_key = os.getenv("GROQ_API_KEY")
     client = Groq(api_key=api_key)
 
@@ -145,7 +130,7 @@ def summarize_account(
             stream=stream,
             timeout=45.0
         )
-        
+
         if stream:
             def json_stream():
                 for chunk in response:
@@ -158,8 +143,7 @@ def summarize_account(
         if not content:
             raise ValueError("Empty response from API")
         result: dict[str, Any] = json.loads(content)
-        
-        # Runtime schema validation against _ACCOUNT_SUMMARY_SCHEMA
+
         if not isinstance(result, dict):
             raise ValueError("Response must be a JSON object")
         if not isinstance(result.get("executive_summary"), str):
@@ -177,15 +161,13 @@ def summarize_account(
     except Exception as e:
         raise RuntimeError(f"Account summary API failure: {e}") from e
 
-    # 4. Post-processing for determinism and quote validation
     valid_flags = []
     for flag in result["risks_and_flags"]:
         tid = flag["ticket_id"]
         quote = flag["verbatim_quote"]
         if not quote:
             continue
-            
-        # Deterministic quote validation exactly matching ticket body
+
         matching_ticket = next((t for t in recent_tickets if t["ticket_id"] == tid), None)
         if matching_ticket and isinstance(matching_ticket.get("body"), str):
             if quote in matching_ticket["body"]:

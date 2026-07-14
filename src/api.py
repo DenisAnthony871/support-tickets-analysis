@@ -1,6 +1,4 @@
-"""
-FastAPI application exposing support ticket triage as a REST endpoint.
-"""
+"""FastAPI application exposing support ticket triage as a REST endpoint."""
 
 import asyncio
 import logging
@@ -11,10 +9,6 @@ from pydantic import BaseModel, Field
 
 from src.triage import triage_ticket
 
-# ---------------------------------------------------------------------------
-# App & Logging
-# ---------------------------------------------------------------------------
-
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -22,10 +16,6 @@ app = FastAPI(
     description="AI-powered support ticket triage and classification.",
     version="0.1.0",
 )
-
-# ---------------------------------------------------------------------------
-# Request / Response models
-# ---------------------------------------------------------------------------
 
 
 class TicketInput(BaseModel):
@@ -56,11 +46,6 @@ class TriageOutput(BaseModel):
     draft_response: str
 
 
-# ---------------------------------------------------------------------------
-# Endpoints
-# ---------------------------------------------------------------------------
-
-
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -74,7 +59,6 @@ async def triage_endpoint(ticket: TicketInput) -> TriageOutput:
     Send either ``raw_text`` for free-form input, or ``subject`` + ``body``
     (plus optional metadata) to match the tickets.json schema.
     """
-    # Build input for triage_ticket
     if ticket.raw_text:
         triage_input: Union[str, dict[str, Any]] = ticket.raw_text
     elif ticket.subject or ticket.body:
