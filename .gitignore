@@ -30,3 +30,9 @@ Thumbs.db
 htmlcov/
 .coverage
 eval_cache.json
+
+# Generated outputs
+eval_report.md
+
+# Agents / Gemini config
+.agents/

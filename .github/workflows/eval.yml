@@ -26,6 +26,7 @@ jobs:
 
     - name: Run Evaluation Harness
       env:
+        # Set this in GitHub → Settings → Secrets → Actions
         GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       run: |
         python scripts/eval_harness.py

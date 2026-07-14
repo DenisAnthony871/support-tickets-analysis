@@ -8,7 +8,7 @@ structured classification JSON using Groq with JSON mode.
 import json
 import os
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Generator, Optional, Union
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -106,7 +106,6 @@ _TRIAGE_SCHEMA = {
 # Core triage function
 # ---------------------------------------------------------------------------
 
-from typing import Any, Union, Generator
 
 def triage_ticket(
     ticket_input: Union[str, dict[str, Any]],

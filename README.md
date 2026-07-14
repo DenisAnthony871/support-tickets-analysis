@@ -7,19 +7,22 @@ A structured Python project for AI-driven support ticket triage and account summ
 ## Setup Instructions
 
 1. **Clone the repository:**
+
    ```bash
-   git clone <repo_url>
+   git clone https://github.com/DenisAnthony871/support-tickets-analysis.git
    cd support-tickets-analysis
    ```
 
 2. **Install dependencies:**
    Ensure you have Python 3.9+ installed. Run the following from a clean virtual environment:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Configure Environment:**
    Copy `.env.example` to `.env` and add your Groq API key:
+
    ```bash
    cp .env.example .env
    # Add your key inside .env: GROQ_API_KEY="gsk_..."
@@ -28,32 +31,57 @@ A structured Python project for AI-driven support ticket triage and account summ
 ## Sample Runs
 
 ### Task 1: Intelligent Ticket Triage Agent
+
 To run the triage pipeline on the mock dataset and generate structured outputs:
+
 ```bash
 python scripts/run_task1.py
 ```
+
 Check `examples/task1_outputs.json` for example outputs.
 
 ### Task 2: TAM Account Health Summarizer
+
 To run the summarization pipeline for strategic accounts and extract deterministic risks and verbatim quotes:
+
 ```bash
 python scripts/run_task2.py
 ```
+
 Check `examples/task2_outputs.json` for example outputs.
 
 ### Task 3: Evaluation Harness
+
 To run the comprehensive evaluation suite (LLM-as-a-judge and rule-based scoring gates):
+
 ```bash
 python scripts/eval_harness.py
 ```
+
 This will test both tasks systematically and output the results to `eval_report.md`.
 
 ### REST API Endpoint
+
 To launch the triage pipeline as a FastAPI REST endpoint:
+
 ```bash
 python -m uvicorn src.api:app --port 8000
 ```
+
 You can then POST to `http://127.0.0.1:8000/triage` with `{"raw_text": "ticket content..."}`.
+
+### Streamlit UI Demo
+
+To launch the interactive TAM AI Assistant dashboard:
+
+```bash
+streamlit run ui.py
+```
+
+This opens a browser UI with two tabs:
+
+- **Ticket Triage** — Paste a ticket and get real-time streaming classification.
+- **Account Summary** — Select an account to generate a health briefing.
 
 ## Design Notes
 
@@ -80,7 +108,7 @@ Through our evaluation harness, we identified three critical failure modes and d
 
 ### Latency vs. Quality
 
-We explicitly set the model temperature to `0.0` in an attempt to guarantee reproducible, deterministic outputs. However, we found that even at `temp=0`, free-text generation is not byte-identical across calls due to underlying backend floating-point nondeterminism. 
+We explicitly set the model temperature to `0.0` in an attempt to guarantee reproducible, deterministic outputs. However, we found that even at `temp=0`, free-text generation is not byte-identical across calls due to underlying backend floating-point nondeterminism.
 
 **Our chosen tradeoff:** We opted to keep free-text generation for now because it yields higher quality, more natural prose. We compensate for minor discrepancies with array-level normalization (such as list sorting and whitespace stripping) in the evaluation suite rather than enforcing strict string matching. If latency and absolute determinism become hard constraints, the system should pivot to structured-fact extraction combined with deterministic templating for the prose sections—trading some conversational naturalness for speed and guaranteed reproducibility.
 
